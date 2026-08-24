@@ -1,11 +1,11 @@
 # Calculator
 
-A modern, responsive and privacy-friendly scientific calculator built with PHP and vanilla JavaScript. The project has evolved from a simple PHP calculator into a production-style web app with a safe expression parser, scientific mode, history, memory, keyboard support, accessibility improvements, automated browser tests, CI and offline/PWA foundations.
+A modern, responsive and privacy-friendly scientific calculator built with PHP and vanilla JavaScript. It has evolved from a simple PHP calculator into a production-style web app with a safe expression parser, scientific mode, local history and memory, keyboard support, accessibility improvements, automated browser tests, CI and PWA foundations.
 
 ## ✨ Features
 
 - Basic arithmetic with correct operator precedence
-- Scientific mode with parentheses, powers, roots, trig, logarithms, factorials and constants
+- Scientific mode with parentheses, powers, roots, trigonometry, logarithms, factorials and constants
 - DEG/RAD angle modes
 - Calculation history (up to 30 local entries)
 - Memory: `MC`, `MR`, `M+`, `M−`, `MS`
@@ -44,9 +44,7 @@ php -S 127.0.0.1:8000
 
 Open `http://127.0.0.1:8000`.
 
-### PWA / offline note
-
-Service workers require a secure context in normal browsers. `localhost` is treated as secure for development. For a deployed installation, serve the app over HTTPS.
+For PWA functionality, serve production over HTTPS. `localhost` is treated as a secure context for development.
 
 ## 🧪 Testing
 
@@ -63,27 +61,17 @@ npm run test:ui
 npm run test:report
 ```
 
-The browser suite covers arithmetic, parser precedence, scientific functions, errors, keyboard controls, history, memory, clipboard, theme persistence and other product flows. Phase 6 adds dedicated scientific expression regression scenarios.
+The suite covers arithmetic, parser precedence, scientific functions, validation, keyboard controls, history, memory, clipboard, theme persistence and other product flows.
 
 ## ♿ Quality & Accessibility
 
-Phase 6 introduces a production-quality baseline documented in [`docs/QUALITY.md`](docs/QUALITY.md):
+The quality baseline is documented in [`docs/QUALITY.md`](docs/QUALITY.md). It includes keyboard navigation, live result/status regions, visible focus indicators, reduced-motion support, safer external links, PWA hardening and scientific parser regression coverage.
 
-- Keyboard skip link
-- Live result and status regions
-- Visible keyboard focus indicators
-- Reduced-motion support
-- Safer external-link behavior
-- Branded PWA icon
-- Versioned service-worker cache with successful-response checks
-- Scientific parser regression coverage
-- Production release checklist
-
-A full automated axe/WCAG audit is intentionally still listed as future work; repository-level accessibility improvements should not be confused with a formal compliance certification.
+Repository improvements should not be confused with formal WCAG certification. Run a real accessibility audit against the deployed build before making compliance claims.
 
 ## 🔬 Scientific Mode
 
-Scientific mode supports:
+Examples:
 
 ```text
 2 × (3 + 4) = 14
@@ -118,7 +106,7 @@ The expression engine uses explicit recursive-descent parsing. User expressions 
 
 - No `eval()` or dynamic code execution
 - Expressions are tokenized and parsed explicitly
-- History and memory remain in the browser's local storage
+- History and memory remain in browser storage
 - No calculator data is sent to a backend
 - Dynamic history content is rendered safely with DOM APIs
 - PHP profile values are HTML-escaped
@@ -126,30 +114,18 @@ The expression engine uses explicit recursive-descent parsing. User expressions 
 
 ## 📱 PWA / Offline Architecture
 
-The app includes:
-
 - `manifest.webmanifest` — app identity, display mode, theme and icon metadata
 - `icons/icon.svg` — branded application icon
 - `sw.js` — versioned service worker with application-shell caching and offline fallback
 - Service-worker registration from `index.php`
 
-The service worker removes old cache versions during activation and only caches successful network responses. For production hosting, HTTPS is required for service-worker installation.
+The service worker removes old cache versions during activation and only caches successful network responses. Production PWA installation requires HTTPS.
 
 ## 🔎 SEO & Social Metadata
 
-The page includes:
+The page includes a descriptive title, meta description, author metadata, referrer policy, theme color, Open Graph/Twitter metadata, `robots.txt` and `sitemap.xml`.
 
-- Descriptive page title
-- Meta description
-- Author metadata
-- Referrer policy metadata
-- Theme color
-- Open Graph title/description/type
-- Twitter card metadata
-- `robots.txt`
-- `sitemap.xml`
-
-The sitemap currently uses a relative root URL so the repository remains portable across hosting environments. If the app is deployed to a canonical domain, replace the sitemap URL with that absolute production URL.
+The sitemap remains portable by using a relative root. Replace it with the deployed canonical absolute URL before production release.
 
 ## 👨‍💻 Creator
 
@@ -161,7 +137,13 @@ The sitemap currently uses a relative root URL so the repository remains portabl
 - Upwork: https://www.upwork.com/freelancers/~0129afd82850749f05?viewMode=1
 - LinkedIn: https://www.linkedin.com/in/imiantalha
 
-These links are configured centrally in `index.php` and are rendered on the calculator front page.
+These links are configured centrally in `index.php` and rendered on the calculator front page.
+
+## 📦 Production Release
+
+See [`docs/RELEASE.md`](docs/RELEASE.md) for the deployment checklist, hosting requirements, production smoke tests, Lighthouse/accessibility verification and release process.
+
+The repository intentionally does not claim a production deployment URL, Lighthouse score or WCAG certification until those checks have been performed against a real deployed build.
 
 ## 📁 Project Structure
 
@@ -172,12 +154,12 @@ Calculator/
 ├── style.css
 ├── manifest.webmanifest
 ├── sw.js
-├── icons/
-│   └── icon.svg
+├── icons/icon.svg
 ├── robots.txt
 ├── sitemap.xml
 ├── docs/
-│   └── QUALITY.md
+│   ├── QUALITY.md
+│   └── RELEASE.md
 ├── tests/
 │   ├── calculator.test.js
 │   └── parser.test.js
@@ -189,13 +171,11 @@ Calculator/
 
 ## 📌 Roadmap
 
-Future candidates:
-
-- Automated axe/WCAG accessibility testing
+- Automated axe/WCAG testing
 - Broader browser/device matrix
 - Unit-level parser tests alongside E2E tests
 - Configurable precision/display formatting
-- 192px/512px raster PWA icon variants where platform requirements need them
+- 192px/512px raster PWA icon variants if required by target platforms
 - PWA install prompt UX
 - Final Lighthouse audit on the deployed production host
 
