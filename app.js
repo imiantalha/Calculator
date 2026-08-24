@@ -1,20 +1,22 @@
 (() => {
     'use strict';
 
-    const display = document.querySelector('[data-display]');
-    const expressionDisplay = document.querySelector('[data-expression]');
-    const status = document.querySelector('[data-status]');
-    const keys = document.querySelector('[data-keypad]');
-    const scientificKeys = document.querySelector('[data-scientific-keypad]');
-    const scientificTools = document.querySelector('[data-scientific-tools]');
-    const modeToggle = document.querySelector('[data-mode-toggle]');
-    const angleToggle = document.querySelector('[data-angle-toggle]');
-    const themeToggle = document.querySelector('[data-theme-toggle]');
-    const historyToggle = document.querySelector('[data-history-toggle]');
-    const historyPanel = document.querySelector('[data-history-panel]');
-    const historyList = document.querySelector('[data-history-list]');
-    const clearHistoryButton = document.querySelector('[data-clear-history]');
-    const copyButton = document.querySelector('[data-copy-result]');
+    const $ = (selector) => document.querySelector(selector);
+    const display = $('[data-display]');
+    const expressionDisplay = $('[data-expression]');
+    const status = $('[data-status]');
+    const keys = $('[data-keypad]');
+    const scientificKeys = $('[data-scientific-keypad]');
+    const scientificTools = $('[data-scientific-tools]');
+    const modeToggle = $('[data-mode-toggle]');
+    const angleToggle = $('[data-angle-toggle]');
+    const themeToggle = $('[data-theme-toggle]');
+    const historyToggle = $('[data-history-toggle]');
+    const historyPanel = $('[data-history-panel]');
+    const historyList = $('[data-history-list]');
+    const clearHistoryButton = $('[data-clear-history]');
+    const copyButton = $('[data-copy-result]');
+    const memoryBar = $('.memory-bar');
 
     let expression = '';
     let justEvaluated = false;
@@ -27,34 +29,30 @@
     const operators = ['+', '-', '×', '÷', '^'];
     const functions = ['sin', 'cos', 'tan', 'sqrt', 'ln', 'log'];
     const MAX_HISTORY = 30;
+    const EPSILON = 1e-12;
 
-    const isOperator = value => operators.includes(value);
-    const isFunction = value => functions.includes(value);
+    const isOperator = (value) => operators.includes(value);
+    const isDigit = (value) => /^\d$/.test(value);
 
-    function setStatus(message = '') {
-        status.textContent = message;
-        status.hidden = !message;
-    }
+    function setStatus(message = '') { status.textContent = message; status.hidden = !message; }
 
     function updateDisplay() {
-        expressionDisplay.textContent = expression || '0';
-        display.textContent = expression || '0';
-        display.setAttribute('aria-label', `Calculator display: ${expression || '0'}`);
+        const value = expression || '0';
+        expressionDisplay.textContent = value;
+        display.textContent = value;
+        display.setAttribute('aria-label', `Calculator display: ${value}`);
     }
 
     function persistMemory() { localStorage.setItem('calculator-memory', String(memory)); }
 
     function getHistory() {
         try {
-            const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-            return Array.isArray(history) ? history : [];
+            const parsed = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+            return Array.isArray(parsed) ? parsed.filter((item) => item && typeof item.calculation === 'string' && typeof item.result === 'string').slice(0, MAX_HISTORY) : [];
         } catch (_) { return []; }
     }
 
-    function saveHistory(items) {
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, MAX_HISTORY)));
-        renderHistory();
-    }
+    function saveHistory(items) { localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, MAX_HISTORY))); renderHistory(); }
 
     function addHistory(calculation, result) {
         const history = getHistory();
@@ -77,7 +75,6 @@
             historyList.appendChild(empty);
             return;
         }
-
         history.forEach((item, index) => {
             const entry = document.createElement('button');
             entry.type = 'button';
@@ -110,7 +107,7 @@
         scientificTools.hidden = !scientific;
         modeToggle.textContent = scientific ? 'BASIC' : 'SCI';
         modeToggle.setAttribute('aria-label', scientific ? 'Switch to basic calculator' : 'Switch to scientific calculator');
-        if (!scientific && /[a-z]|π|\^|[()]/.test(expression)) clearCalculator();
+        if (!scientific && /[a-z]|π|\^|[()!]/.test(expression)) clearCalculator();
     }
 
     function setAngle(value) {
@@ -129,16 +126,20 @@
     }
 
     function currentNumber() {
-        const match = expression.match(/(?:^|[+\-×÷^,(])(-?(?:\d+\.?\d*|\.\d*))$/);
+        const match = expression.match(/(?:^|[+\-×÷^(])(-?(?:\d+\.?\d*|\.\d*))$/);
         return match ? match[1] : '';
     }
 
-    function appendNumber(value) {
+    function resetAfterEvaluation() {
         if (justEvaluated) {
             expression = '';
             justEvaluated = false;
             lastResult = '';
         }
+    }
+
+    function appendNumber(value) {
+        resetAfterEvaluation();
         const number = currentNumber();
         if (value === '.' && number.includes('.')) return;
         if (value === '.' && (!number || number === '-')) expression += '0.';
@@ -149,11 +150,7 @@
     }
 
     function appendValue(value) {
-        if (justEvaluated) {
-            expression = '';
-            justEvaluated = false;
-            lastResult = '';
-        }
+        resetAfterEvaluation();
         expression += value;
         setStatus();
         updateDisplay();
@@ -168,11 +165,13 @@
         const last = expression.slice(-1);
         if (operator === '-' && isOperator(last)) {
             if (last !== '-') expression += '-';
+            else expression = expression.slice(0, -1);
+            updateDisplay();
             return;
         }
         if (last === '-' && isOperator(expression.slice(-2, -1))) expression = expression.slice(0, -2) + operator;
         else if (isOperator(last)) expression = expression.slice(0, -1) + operator;
-        else expression += operator;
+        else if (last !== '(') expression += operator;
         justEvaluated = false;
         lastResult = '';
         setStatus();
@@ -181,7 +180,9 @@
 
     function backspace() {
         if (justEvaluated) return clearCalculator();
-        expression = expression.slice(0, -1);
+        const functionPrefix = functions.find((fn) => expression.endsWith(`${fn}(`));
+        if (functionPrefix) expression = expression.slice(0, -functionPrefix.length - 1);
+        else expression = expression.slice(0, -1);
         setStatus();
         updateDisplay();
     }
@@ -204,6 +205,12 @@
         return result;
     }
 
+    function snap(value) {
+        if (Math.abs(value) < EPSILON) return 0;
+        const nearestInteger = Math.round(value);
+        return Math.abs(value - nearestInteger) < EPSILON ? nearestInteger : value;
+    }
+
     function tokenize(input) {
         const tokens = [];
         let i = 0;
@@ -213,24 +220,20 @@
             if (/\d|\./.test(char)) {
                 const start = i;
                 let dots = 0;
-                while (i < input.length && /\d|\./.test(input[i])) {
-                    if (input[i] === '.') dots += 1;
-                    i += 1;
-                }
+                while (i < input.length && /\d|\./.test(input[i])) { if (input[i] === '.') dots += 1; i += 1; }
                 if (dots > 1) throw new Error('Invalid decimal number.');
-                const value = Number(input.slice(start, i));
+                const raw = input.slice(start, i);
+                if (raw === '.') throw new Error('Invalid decimal number.');
+                const value = Number(raw);
                 if (!Number.isFinite(value)) throw new Error('Invalid number.');
                 tokens.push({ type: 'number', value });
                 continue;
             }
-            if (input.startsWith('sin', i) || input.startsWith('cos', i) || input.startsWith('tan', i) || input.startsWith('sqrt', i) || input.startsWith('log', i) || input.startsWith('ln', i)) {
-                const name = functions.find(fn => input.startsWith(fn, i));
-                tokens.push({ type: 'function', value: name });
-                i += name.length;
-                continue;
-            }
+            const fn = functions.find((name) => input.startsWith(name, i));
+            if (fn) { tokens.push({ type: 'function', value: fn }); i += fn.length; continue; }
             if (char === 'π' || char === 'e') tokens.push({ type: 'constant', value: char });
-            else if (['+', '-', '×', '÷', '^', '(', ')', '!'].includes(char)) tokens.push({ type: char === '(' || char === ')' || char === '!' ? char : 'operator', value: char });
+            else if (operators.includes(char)) tokens.push({ type: 'operator', value: char });
+            else if (['(', ')', '!'].includes(char)) tokens.push({ type: char, value: char });
             else throw new Error('Invalid expression.');
             i += 1;
         }
@@ -239,95 +242,71 @@
 
     function calculate(input) {
         const tokens = tokenize(input);
+        if (!tokens.length) throw new Error('Complete the expression first.');
         let position = 0;
         const peek = () => tokens[position];
         const take = () => tokens[position++];
-
         const parseExpression = () => {
             let value = parseTerm();
-            while (peek()?.type === 'operator' && ['+', '-'].includes(peek().value)) {
-                const op = take().value;
-                const right = parseTerm();
-                value = op === '+' ? value + right : value - right;
-            }
+            while (peek()?.type === 'operator' && ['+', '-'].includes(peek().value)) { const op = take().value; const right = parseTerm(); value = op === '+' ? value + right : value - right; }
             return value;
         };
-
         const parseTerm = () => {
             let value = parsePower();
-            while (peek()?.type === 'operator' && ['×', '÷'].includes(peek().value)) {
-                const op = take().value;
-                const right = parsePower();
-                if (op === '÷' && right === 0) throw new Error('Cannot divide by zero.');
-                value = op === '×' ? value * right : value / right;
-            }
+            while (peek()?.type === 'operator' && ['×', '÷'].includes(peek().value)) { const op = take().value; const right = parsePower(); if (op === '÷' && right === 0) throw new Error('Cannot divide by zero.'); value = op === '×' ? value * right : value / right; }
             return value;
         };
-
         const parsePower = () => {
             let value = parseUnary();
-            if (peek()?.type === 'operator' && peek().value === '^') {
-                take();
-                value = value ** parsePower();
-            }
+            if (peek()?.type === 'operator' && peek().value === '^') { take(); value = value ** parsePower(); }
             return value;
         };
-
         const parseUnary = () => {
             if (peek()?.type === 'operator' && peek().value === '+') { take(); return parseUnary(); }
             if (peek()?.type === 'operator' && peek().value === '-') { take(); return -parseUnary(); }
             return parsePostfix();
         };
-
         const parsePostfix = () => {
             let value = parsePrimary();
             while (peek()?.type === '!') { take(); value = factorial(value); }
             return value;
         };
-
         const parsePrimary = () => {
             const token = take();
             if (!token) throw new Error('Complete the expression first.');
             if (token.type === 'number') return token.value;
             if (token.type === 'constant') return token.value === 'π' ? Math.PI : Math.E;
             if (token.type === '(') {
+                if (peek()?.type === ')') throw new Error('Empty parentheses are not allowed.');
                 const value = parseExpression();
                 if (take()?.type !== ')') throw new Error('Missing closing parenthesis.');
                 return value;
             }
             if (token.type === 'function') {
                 if (take()?.type !== '(') throw new Error(`Use ${token.value}(...)`);
+                if (peek()?.type === ')') throw new Error('Function argument is required.');
                 const argument = parseExpression();
                 if (take()?.type !== ')') throw new Error('Missing closing parenthesis.');
                 return applyFunction(token.value, argument);
             }
             throw new Error('Invalid expression.');
         };
-
         const result = parseExpression();
         if (position !== tokens.length) throw new Error('Invalid expression.');
         if (!Number.isFinite(result)) throw new Error('Result is outside the supported range.');
-        const rounded = Number.parseFloat(result.toPrecision(12));
-        return Object.is(rounded, -0) ? 0 : rounded;
+        const normalized = Number.parseFloat(result.toPrecision(12));
+        return Object.is(normalized, -0) ? 0 : normalized;
     }
 
     function applyFunction(name, value) {
         const angle = degrees ? value * Math.PI / 180 : value;
         switch (name) {
-            case 'sin': return Math.sin(angle);
-            case 'cos': return Math.cos(angle);
-            case 'tan':
-                if (Math.abs(Math.cos(angle)) < 1e-12) throw new Error('Tangent is undefined at this angle.');
-                return Math.tan(angle);
-            case 'sqrt':
-                if (value < 0) throw new Error('Square root requires a non-negative value.');
-                return Math.sqrt(value);
-            case 'ln':
-                if (value <= 0) throw new Error('Natural log requires a positive value.');
-                return Math.log(value);
-            case 'log':
-                if (value <= 0) throw new Error('Log requires a positive value.');
-                return Math.log10(value);
+            case 'sin': return snap(Math.sin(angle));
+            case 'cos': return snap(Math.cos(angle));
+            case 'tan': if (Math.abs(Math.cos(angle)) < EPSILON) throw new Error('Tangent is undefined at this angle.'); return snap(Math.tan(angle));
+            case 'sqrt': if (value < 0) throw new Error('Square root requires a non-negative value.'); return snap(Math.sqrt(value));
+            case 'ln': if (value <= 0) throw new Error('Natural log requires a positive value.'); return snap(Math.log(value));
+            case 'log': if (value <= 0) throw new Error('Log requires a positive value.'); return snap(Math.log10(value));
             default: throw new Error('Unknown function.');
         }
     }
@@ -345,15 +324,21 @@
             lastResult = resultText;
             setStatus('Result');
             addHistory(calculation, resultText);
-        } catch (error) { setStatus(error.message); }
+        } catch (error) { setStatus(error instanceof Error ? error.message : 'Unable to calculate expression.'); }
     }
 
     function applyPercentage() {
         const number = currentNumber();
-        if (number) {
-            expression = expression.slice(0, -number.length) + String(Number(number) / 100);
-            updateDisplay();
-        }
+        if (!number) return;
+        const start = expression.length - number.length;
+        const prefix = expression.slice(0, start);
+        const previous = prefix.slice(-1);
+        const leftMatch = prefix.match(/(?:^|[+\-×÷^])(-?(?:\d+\.?\d*|\.\d+))$/);
+        let percentage = Number(number) / 100;
+        if (leftMatch && (previous === '+' || previous === '-')) percentage = Number(leftMatch[1]) * percentage;
+        expression = prefix + String(percentage);
+        setStatus();
+        updateDisplay();
     }
 
     function currentNumericValue() {
@@ -366,25 +351,27 @@
         const value = currentNumericValue();
         switch (action) {
             case 'clear': memory = 0; persistMemory(); setStatus('Memory cleared'); break;
-            case 'recall': expression = String(memory); justEvaluated = false; setStatus('Memory recalled'); updateDisplay(); break;
-            case 'store': if (value !== null) { memory = value; persistMemory(); setStatus('Stored in memory'); } break;
-            case 'add': if (value !== null) { memory += value; persistMemory(); setStatus('Added to memory'); } break;
-            case 'subtract': if (value !== null) { memory -= value; persistMemory(); setStatus('Subtracted from memory'); } break;
-            default: break;
+            case 'recall': expression = String(memory); justEvaluated = false; lastResult = ''; setStatus('Memory recalled'); updateDisplay(); break;
+            case 'store': if (value !== null) { memory = value; persistMemory(); setStatus('Stored in memory'); } else setStatus('Enter a number first.'); break;
+            case 'add': if (value !== null) { memory += value; persistMemory(); setStatus('Added to memory'); } else setStatus('Enter a number first.'); break;
+            case 'subtract': if (value !== null) { memory -= value; persistMemory(); setStatus('Subtracted from memory'); } else setStatus('Enter a number first.'); break;
         }
     }
 
     async function copyResult() {
-        try { await navigator.clipboard.writeText(display.textContent || '0'); setStatus('Result copied'); }
-        catch (_) { setStatus('Unable to copy result.'); }
+        try {
+            if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+            await navigator.clipboard.writeText(display.textContent || '0');
+            setStatus('Result copied');
+        } catch (_) { setStatus('Unable to copy result.'); }
     }
 
-    keys.addEventListener('click', event => {
+    keys.addEventListener('click', (event) => {
         const button = event.target.closest('button');
         if (!button) return;
         const value = button.dataset.value;
         const action = button.dataset.action;
-        if (value && /^\d$/.test(value)) appendNumber(value);
+        if (value && isDigit(value)) appendNumber(value);
         else if (value === '.') appendNumber(value);
         else if (value && isOperator(value)) appendOperator(value);
         else if (value) appendValue(value);
@@ -396,19 +383,19 @@
         else if (action === 'percent') applyPercentage();
     });
 
-    scientificKeys.addEventListener('click', event => {
+    scientificKeys.addEventListener('click', (event) => {
         const button = event.target.closest('button');
         if (!button) return;
         if (button.dataset.value) appendValue(button.dataset.value);
         else if (button.dataset.action === 'factorial') appendValue('!');
     });
 
-    document.querySelector('.memory-bar').addEventListener('click', event => {
-        const button = event.target.closest('[data-memory]');
+    memoryBar.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-memory]');
         if (button) memoryAction(button.dataset.memory);
     });
 
-    historyList.addEventListener('click', event => {
+    historyList.addEventListener('click', (event) => {
         const entry = event.target.closest('[data-history-index]');
         if (!entry) return;
         const item = getHistory()[Number(entry.dataset.historyIndex)];
@@ -416,47 +403,53 @@
         expression = item.calculation;
         justEvaluated = false;
         lastResult = '';
-        setStatus('Restored from history');
+        setStatus('History restored');
         updateDisplay();
         toggleHistory(false);
     });
 
-    clearHistoryButton.addEventListener('click', () => saveHistory([]));
-    historyToggle.addEventListener('click', () => toggleHistory());
-    copyButton.addEventListener('click', copyResult);
-    modeToggle.addEventListener('click', () => setMode(!scientific));
-    angleToggle.addEventListener('click', () => setAngle(!degrees));
-
-    document.addEventListener('keydown', event => {
-        if (/^\d$/.test(event.key)) appendNumber(event.key);
-        else if (event.key === '.') appendNumber('.');
-        else if (['+', '-'].includes(event.key)) appendOperator(event.key);
-        else if (event.key === '*') appendOperator('×');
-        else if (event.key === '/') appendOperator('÷');
-        else if (event.key === '^') appendOperator('^');
-        else if (event.key === '(' || event.key === ')' || event.key === '!') appendValue(event.key);
-        else if (event.key === 'Enter' || event.key === '=') { event.preventDefault(); evaluate(); }
-        else if (event.key === 'Backspace') backspace();
-        else if (event.key === 'Escape') clearCalculator();
-        else if (event.key.toLowerCase() === 'h') toggleHistory();
-        else if (event.key.toLowerCase() === 's') setMode(!scientific);
+    clearHistoryButton.addEventListener('click', () => {
+        localStorage.removeItem(HISTORY_KEY);
+        renderHistory();
+        setStatus('History cleared');
     });
 
-    themeToggle.addEventListener('click', () => {
-        const dark = document.documentElement.classList.toggle('dark');
+    modeToggle.addEventListener('click', () => setMode(!scientific));
+    angleToggle.addEventListener('click', () => setAngle(!degrees));
+    historyToggle.addEventListener('click', () => toggleHistory());
+    copyButton.addEventListener('click', copyResult);
+
+    function setTheme(dark) {
+        document.documentElement.classList.toggle('dark', dark);
         localStorage.setItem('calculator-theme', dark ? 'dark' : 'light');
         themeToggle.textContent = dark ? '☀' : '☾';
         themeToggle.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
-    });
-
-    if (localStorage.getItem('calculator-theme') === 'dark') {
-        document.documentElement.classList.add('dark');
-        themeToggle.textContent = '☀';
-        themeToggle.setAttribute('aria-label', 'Switch to light theme');
     }
+
+    themeToggle.addEventListener('click', () => setTheme(!document.documentElement.classList.contains('dark')));
+
+    document.addEventListener('keydown', (event) => {
+        if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
+        const key = event.key;
+        if (/^\d$/.test(key)) appendNumber(key);
+        else if (key === '.') appendNumber('.');
+        else if (['+', '-'].includes(key)) appendOperator(key);
+        else if (key === '*') appendOperator('×');
+        else if (key === '/') { event.preventDefault(); appendOperator('÷'); }
+        else if (key === '^') appendOperator('^');
+        else if (key === '%') applyPercentage();
+        else if (['(', ')'].includes(key)) appendValue(key);
+        else if (key === '!') appendValue('!');
+        else if (key === 'Enter' || key === '=') { event.preventDefault(); evaluate(); }
+        else if (key === 'Backspace') backspace();
+        else if (key === 'Escape') { clearCalculator(); toggleHistory(false); }
+        else if (key.toLowerCase() === 'h') toggleHistory();
+        else if (key.toLowerCase() === 's') setMode(!scientific);
+    });
 
     setMode(scientific);
     setAngle(degrees);
-    renderHistory();
+    setTheme(localStorage.getItem('calculator-theme') === 'dark');
     updateDisplay();
+    renderHistory();
 })();
