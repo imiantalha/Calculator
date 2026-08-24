@@ -1,12 +1,15 @@
-# Calculator
+# imiantalha Calculator
 
-A modern, responsive and privacy-friendly scientific calculator built with PHP and vanilla JavaScript. It has evolved from a simple PHP calculator into a production-style web app with a safe expression parser, scientific mode, local history and memory, keyboard support, accessibility improvements, automated browser tests, CI and PWA foundations.
+A modern, responsive and privacy-friendly scientific calculator built with PHP and vanilla JavaScript. The project is designed as a real product rather than a demo: it includes a safe expression parser, scientific mode, local history and memory, accessibility improvements, automated browser tests, CI, PWA support and a professional branded icon.
 
 ## ✨ Features
 
 - Basic arithmetic with correct operator precedence
 - Scientific mode with parentheses, powers, roots, trigonometry, logarithms, factorials and constants
 - DEG/RAD angle modes
+- Scientific precision normalization (`sin(180°)` and `cos(90°)` display `0`)
+- Clear domain errors for invalid mathematical operations
+- Standard percentage semantics (`200 + 10% = 220`)
 - Calculation history (up to 30 local entries)
 - Memory: `MC`, `MR`, `M+`, `M−`, `MS`
 - Copy result to clipboard
@@ -18,7 +21,7 @@ A modern, responsive and privacy-friendly scientific calculator built with PHP a
 - No `eval()` or arbitrary code execution
 - Playwright regression tests and GitHub Actions CI
 - Web App Manifest and service worker for installable/offline-capable use
-- Branded application icon
+- Professional SVG application icon used in the header, browser tab and PWA manifest
 - SEO/social metadata and crawler policy
 - Creator links displayed directly in the product
 
@@ -61,29 +64,32 @@ npm run test:ui
 npm run test:report
 ```
 
-The suite covers arithmetic, parser precedence, scientific functions, validation, keyboard controls, history, memory, clipboard, theme persistence and other product flows.
+The suite covers arithmetic, parser precedence, scientific functions, precision normalization, percentage behavior, validation, keyboard controls, history, memory, clipboard, theme persistence and other product flows.
+
+## 🔬 Calculation Engine
+
+The expression engine uses explicit recursive-descent parsing. User expressions are never executed as JavaScript.
+
+See [`docs/CALCULATION_ENGINE.md`](docs/CALCULATION_ENGINE.md) for the complete grammar behavior, operator precedence, percentage semantics, validation rules, precision policy and security boundary.
+
+Examples:
+
+```text
+2 × (3 + 4) = 14
+2 ^ 3 ^ 2 = 512
+sqrt(16) = 4
+5! = 120
+sin(90) = 1        # DEG mode
+ln(e) = 1
+log(100) = 2
+200 + 10% = 220
+```
 
 ## ♿ Quality & Accessibility
 
 The quality baseline is documented in [`docs/QUALITY.md`](docs/QUALITY.md). It includes keyboard navigation, live result/status regions, visible focus indicators, reduced-motion support, safer external links, PWA hardening and scientific parser regression coverage.
 
 Repository improvements should not be confused with formal WCAG certification. Run a real accessibility audit against the deployed build before making compliance claims.
-
-## 🔬 Scientific Mode
-
-Examples:
-
-```text
-2 × (3 + 4) = 14
-2 ^ 3 = 8
-sqrt(9) = 3
-5! = 120
-sin(90) = 1        # DEG mode
-ln(e) = 1
-log(100) = 2
-```
-
-The expression engine uses explicit recursive-descent parsing. User expressions are never executed as JavaScript.
 
 ## ⌨️ Keyboard Shortcuts
 
@@ -115,7 +121,7 @@ The expression engine uses explicit recursive-descent parsing. User expressions 
 ## 📱 PWA / Offline Architecture
 
 - `manifest.webmanifest` — app identity, display mode, theme and icon metadata
-- `icons/icon.svg` — branded application icon
+- `icons/calculator-logo.svg` — professional application icon
 - `sw.js` — versioned service worker with application-shell caching and offline fallback
 - Service-worker registration from `index.php`
 
@@ -154,11 +160,12 @@ Calculator/
 ├── style.css
 ├── manifest.webmanifest
 ├── sw.js
-├── icons/icon.svg
+├── icons/calculator-logo.svg
 ├── robots.txt
 ├── sitemap.xml
 ├── docs/
 │   ├── QUALITY.md
+│   ├── CALCULATION_ENGINE.md
 │   └── RELEASE.md
 ├── tests/
 │   ├── calculator.test.js
@@ -168,16 +175,6 @@ Calculator/
 ├── .github/workflows/tests.yml
 └── README.md
 ```
-
-## 📌 Roadmap
-
-- Automated axe/WCAG testing
-- Broader browser/device matrix
-- Unit-level parser tests alongside E2E tests
-- Configurable precision/display formatting
-- 192px/512px raster PWA icon variants if required by target platforms
-- PWA install prompt UX
-- Final Lighthouse audit on the deployed production host
 
 ## 📄 License
 
