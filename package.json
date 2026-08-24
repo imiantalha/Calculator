@@ -1,7 +1,7 @@
 {
   "name": "calculator",
   "private": true,
-  "version": "5.0.0",
+  "version": "7.0.0",
   "description": "Production-style privacy-friendly scientific calculator with PWA support and Playwright tests",
   "scripts": {
     "test": "playwright test",
@@ -9,6 +9,6 @@
     "test:report": "playwright show-report"
   },
   "devDependencies": {
-    "@playwright/test": "^1.55.0"
+    "@playwright/test": "1.55.0"
   }
 }
