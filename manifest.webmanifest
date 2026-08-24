@@ -1,0 +1,11 @@
+{
+  "name": "Calculator — Muhammad Talha",
+  "short_name": "Calculator",
+  "description": "A modern, fast and privacy-friendly scientific calculator created by Muhammad Talha.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": []
+}
