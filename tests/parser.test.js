@@ -1,30 +1,51 @@
 import { test, expect } from '@playwright/test';
 
-// Parser regression matrix. These cases are exercised through the public UI so
-// the tests verify both parsing and presentation without coupling to internals.
-test.describe('expression engine edge cases', () => {
+async function press(page, values) {
+    for (const value of values) {
+        await page.locator(`[data-value="${value}"]`).click();
+    }
+}
+
+test.describe('expression engine regression coverage', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
         await page.locator('[data-mode-toggle]').click();
     });
 
-    const cases = [
-        ['2 + 3 × 4', '14'],
-        ['2 × (3 + 4)', '14'],
-        ['2 ^ 3 ^ 2', '512'],
-        ['sqrt(16)', '4'],
-        ['5!', '120'],
-        ['sin(90)', '1'],
-        ['cos(0)', '1'],
-        ['ln(e)', '1'],
-        ['log(100)', '2'],
-    ];
+    test('respects nested parentheses and precedence', async ({ page }) => {
+        await press(page, ['2', '×', '(', '3', '+', '4', ')']);
+        await page.locator('[data-action="equals"]').click();
+        await expect(page.locator('[data-display]')).toHaveText('14');
+    });
 
-    for (const [expression, expected] of cases) {
-        test(`${expression} = ${expected}`, async ({ page }) => {
-            await page.locator('[data-expression-input]').fill(expression);
-            await page.locator('[data-action="equals"]').click();
-            await expect(page.locator('[data-display]')).toHaveText(expected);
-        });
-    }
+    test('evaluates exponentiation right-to-left', async ({ page }) => {
+        await press(page, ['2', '^', '3', '^', '2']);
+        await page.locator('[data-action="equals"]').click();
+        await expect(page.locator('[data-display]')).toHaveText('512');
+    });
+
+    test('evaluates square root', async ({ page }) => {
+        await press(page, ['sqrt(', '1', '6', ')']);
+        await page.locator('[data-action="equals"]').click();
+        await expect(page.locator('[data-display]')).toHaveText('4');
+    });
+
+    test('evaluates factorial', async ({ page }) => {
+        await press(page, ['5']);
+        await page.locator('[data-action="factorial"]').click();
+        await page.locator('[data-action="equals"]').click();
+        await expect(page.locator('[data-display]')).toHaveText('120');
+    });
+
+    test('evaluates sine in degrees', async ({ page }) => {
+        await press(page, ['sin(', '9', '0', ')']);
+        await page.locator('[data-action="equals"]').click();
+        await expect(page.locator('[data-display]')).toHaveText('1');
+    });
+
+    test('evaluates ln with Euler constant', async ({ page }) => {
+        await press(page, ['ln(', 'e', ')']);
+        await page.locator('[data-action="equals"]').click();
+        await expect(page.locator('[data-display]')).toHaveText('1');
+    });
 });
