@@ -1,57 +1,36 @@
 # Calculator
 
-A modern, responsive calculator built as a lightweight PHP + JavaScript web application. The project started as a simple PHP calculator and has evolved into a product-style experience with a safe client-side expression parser, scientific mode, keyboard support, validation, history, memory functions, clipboard support, responsive UI, themes, accessibility, automated testing, and continuous integration.
+A modern, responsive and privacy-friendly scientific calculator built with PHP and vanilla JavaScript. The project has evolved from a simple PHP calculator into a production-style web app with a safe expression parser, scientific mode, history, memory, keyboard support, accessibility improvements, automated browser tests, CI and offline/PWA foundations.
 
 ## ✨ Features
 
-### Basic mode
-- Addition, subtraction, multiplication and division
-- Correct operator precedence
-- Decimal input and validation
-- Positive/negative toggle
-- Percentage conversion
-- Backspace and all-clear
-- Division-by-zero protection
-
-### Scientific mode
-- Parentheses and nested expressions
-- Exponentiation (`^`)
-- Square root (`sqrt`)
-- Sine, cosine and tangent
-- Natural logarithm (`ln`)
-- Base-10 logarithm (`log`)
-- Factorial (`!`, integers 0–170)
-- Constants `π` and `e`
-- Degree/radian angle switching
-- Scientific mode preference persists locally
-
-### Product features
-- Calculation history with up to 30 local entries
-- Restore calculations from history
-- Clear history
-- Calculator memory: `MC`, `MR`, `M+`, `M−`, `MS`
-- Persistent memory
+- Basic arithmetic with correct operator precedence
+- Scientific mode with parentheses, powers, roots, trig, logarithms, factorials and constants
+- DEG/RAD angle modes
+- Calculation history (up to 30 local entries)
+- Memory: `MC`, `MR`, `M+`, `M−`, `MS`
 - Copy result to clipboard
 - Light/dark theme
 - Responsive mobile and desktop UI
-- Accessible labels, focus states and live results
 - Keyboard shortcuts
+- Accessible labels, focus states and live results
 - No `eval()` or arbitrary code execution
-- Playwright regression tests
-- GitHub Actions CI
+- Playwright regression tests and GitHub Actions CI
+- Web App Manifest and service worker for installable/offline-capable use
+- SEO/social metadata and crawler policy
+- Creator links displayed directly in the product
 
 ## 🛠️ Tech Stack
 
 - PHP 8+
-- HTML5
-- CSS3
+- HTML5 / CSS3
 - Vanilla JavaScript (ES6+)
-- Node.js for development/test tooling
-- Playwright for end-to-end testing
+- Node.js + Playwright for testing
 - GitHub Actions for CI
 - Browser `localStorage` for local preferences, history and memory
+- Service Worker + Web App Manifest for PWA capabilities
 
-The application has no runtime framework dependency or frontend build step.
+There is no runtime frontend framework or build step.
 
 ## 🚀 Run Locally
 
@@ -61,46 +40,32 @@ cd Calculator
 php -S 127.0.0.1:8000
 ```
 
-Open `http://127.0.0.1:8000` in your browser.
+Open `http://127.0.0.1:8000`.
 
-## 🧪 Automated Testing
+### PWA / offline note
 
-Install dependencies and Chromium:
+Service workers require a secure context in normal browsers. `localhost` is treated as secure for development. For a deployed installation, serve the app over HTTPS.
+
+## 🧪 Testing
 
 ```bash
 npm install
 npx playwright install chromium
-```
-
-Run the regression suite:
-
-```bash
 npm test
 ```
 
-Interactive UI mode:
+Optional:
 
 ```bash
 npm run test:ui
-```
-
-Open the latest HTML report:
-
-```bash
 npm run test:report
 ```
 
-The suite covers basic arithmetic, precedence, decimals, errors, keyboard controls, history, memory, clipboard behavior, scientific mode, parentheses, exponentiation, square root, factorial, trigonometry, angle modes and scientific validation.
+The browser suite covers arithmetic, parser precedence, scientific functions, errors, keyboard controls, history, memory, clipboard, theme persistence and other product flows.
 
-## 🔄 Continuous Integration
+## 🔬 Scientific Mode
 
-GitHub Actions runs the browser regression suite for pushes to `main` and pull requests targeting `main`.
-
-## 🔬 Scientific Calculator
-
-Scientific mode can be enabled with the **SCI** button or the `S` keyboard shortcut.
-
-Examples:
+Scientific mode supports:
 
 ```text
 2 × (3 + 4) = 14
@@ -112,114 +77,103 @@ ln(e) = 1
 log(100) = 2
 ```
 
-### Angle modes
-
-- **DEG** — trigonometric input is interpreted as degrees
-- **RAD** — trigonometric input is interpreted as radians
-
-The selected mode is persisted in the browser.
+The expression engine uses explicit recursive-descent parsing. User expressions are never executed as JavaScript.
 
 ## ⌨️ Keyboard Shortcuts
 
 | Key | Action |
 | --- | --- |
 | `0-9` | Enter number |
-| `.` | Decimal point |
+| `.` | Decimal |
 | `+` / `-` | Add / subtract |
-| `*` | Multiply |
-| `/` | Divide |
-| `^` | Exponentiation |
+| `*` / `/` | Multiply / divide |
+| `^` | Power |
 | `(` / `)` | Parentheses |
 | `!` | Factorial |
 | `Enter` / `=` | Calculate |
-| `Backspace` | Delete last character |
+| `Backspace` | Delete |
 | `Esc` | Clear |
-| `H` | Open/close history |
-| `S` | Toggle scientific mode |
-
-## 🧠 Memory Functions
-
-| Button | Action |
-| --- | --- |
-| `MC` | Clear stored memory |
-| `MR` | Recall stored value |
-| `M+` | Add current value to memory |
-| `M−` | Subtract current value from memory |
-| `MS` | Store current value in memory |
-
-Memory is stored only in the browser and is never sent to a backend.
-
-## 🕘 Calculation History
-
-Successful calculations are stored locally, with a maximum of 30 entries. Each entry contains the expression, result and timestamp. Selecting an entry restores its expression. History can be cleared from the History panel.
-
-## 📋 Copy Result
-
-Use **Copy** below the display to copy the current result to the clipboard. The application reports success or failure without sending the value to a backend.
-
-## 🧮 Expression Engine
-
-The calculator does **not** use `eval()`.
-
-Scientific expressions are processed by a recursive-descent parser with explicit grammar stages for:
-
-```text
-Expression → addition/subtraction
-Term       → multiplication/division
-Power      → exponentiation
-Unary      → positive/negative values
-Postfix    → factorial
-Primary    → numbers, constants, parentheses, functions
-```
-
-This makes precedence explicit and keeps arbitrary JavaScript execution out of the calculation path.
-
-The engine validates malformed expressions, decimal values, function arguments, division by zero, invalid logarithms, invalid square roots, undefined tangent angles, factorial bounds and non-finite results.
+| `H` | History |
+| `S` | Scientific mode |
 
 ## 🔐 Security & Privacy
 
 - No `eval()` or dynamic code execution
-- Input is tokenized and parsed explicitly
-- Stored history is rendered with DOM text nodes rather than HTML injection
-- Local history and memory never leave the browser
-- PHP profile values are HTML-escaped before rendering
+- Expressions are tokenized and parsed explicitly
+- History and memory remain in the browser's local storage
+- No calculator data is sent to a backend
+- Dynamic history content is rendered safely with DOM APIs
+- PHP profile values are HTML-escaped
+
+## 📱 PWA / Offline Architecture
+
+The app includes:
+
+- `manifest.webmanifest` — app identity, display mode and theme metadata
+- `sw.js` — cache-first fallback strategy for the application shell and visited GET resources
+- Service-worker registration from `index.php`
+
+The service worker uses a versioned cache and removes old cache versions during activation. Network requests are preferred when available so updated resources can be cached for future offline use.
+
+For production hosting, HTTPS is required for service-worker installation.
+
+## 🔎 SEO & Social Metadata
+
+The page includes:
+
+- Descriptive page title
+- Meta description
+- Author metadata
+- Theme color
+- Open Graph title/description/type
+- Twitter card metadata
+- `robots.txt`
+- `sitemap.xml`
+
+The sitemap currently uses a relative root URL so the repository remains portable across hosting environments. If the app is deployed to a canonical domain, replace the sitemap URL with that absolute production URL.
+
+## 👨‍💻 Creator
+
+**Muhammad Talha — Software Engineer**
+
+- Portfolio: https://imiantalha.vercel.app/
+- GitHub: https://github.com/imiantalha
+- Fiverr: https://www.fiverr.com/imiantalha
+- Upwork: https://www.upwork.com/freelancers/~0129afd82850749f05?viewMode=1
+- LinkedIn: https://www.linkedin.com/in/imiantalha
+
+These links are configured centrally in `index.php` and are rendered on the calculator front page.
 
 ## 📁 Project Structure
 
 ```text
 Calculator/
-├── index.php                    # Application shell and calculator markup
-├── app.js                       # State, expression parser and interactions
-├── style.css                    # Responsive product UI and themes
+├── index.php
+├── app.js
+├── style.css
+├── manifest.webmanifest
+├── sw.js
+├── robots.txt
+├── sitemap.xml
 ├── tests/
-│   └── calculator.test.js       # Playwright end-to-end regression tests
-├── playwright.config.js         # Test runner and PHP web-server configuration
-├── package.json                 # Test tooling and npm scripts
-├── .github/workflows/tests.yml  # Continuous integration workflow
-└── README.md                    # Project documentation
+│   └── calculator.test.js
+├── playwright.config.js
+├── package.json
+├── .github/workflows/tests.yml
+└── README.md
 ```
 
-## 👨‍💻 Created By
+## 📌 Roadmap
 
-**Muhammad Talha** — Software Engineer
+Future candidates:
 
-- GitHub: https://github.com/imiantalha
-- Portfolio: add your portfolio URL in `index.php`
-- Fiverr: add your Fiverr profile URL in `index.php`
-- Upwork: add your Upwork profile URL in `index.php`
-
-The profile links are intentionally configured in one place so they can be updated without touching the calculator UI.
-
-## 📌 Development Roadmap
-
-Potential future improvements:
-
-- Advanced accessibility audit and screen-reader testing
+- Expanded accessibility/screen-reader testing
 - Broader browser/device matrix
-- Optional installable PWA experience
-- Unit-level parser tests in addition to browser tests
-- Optional configurable precision/display formatting
+- Unit-level parser tests alongside E2E tests
+- Configurable precision/display formatting
+- Generated app icons and screenshots for richer PWA installation metadata
+- Optional install prompt UX
 
 ## 📄 License
 
-This project currently does not declare a software license. If you intend to make the source explicitly reusable by others, add an appropriate license file.
+This project currently does not declare a software license. Add an appropriate license if you intend to explicitly grant reuse rights.

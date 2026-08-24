@@ -1,11 +1,12 @@
 <?php
 $profile = [
     'name' => 'Muhammad Talha',
+    'role' => 'Software Engineer',
+    'portfolio' => 'https://imiantalha.vercel.app/',
     'github' => 'https://github.com/imiantalha',
-    // Replace these placeholders with your public profile URLs.
-    'portfolio' => '#',
-    'fiverr' => '#',
-    'upwork' => '#',
+    'fiverr' => 'https://www.fiverr.com/imiantalha',
+    'upwork' => 'https://www.upwork.com/freelancers/~0129afd82850749f05?viewMode=1',
+    'linkedin' => 'https://www.linkedin.com/in/imiantalha',
 ];
 ?>
 <!DOCTYPE html>
@@ -13,8 +14,14 @@ $profile = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A fast, modern and responsive calculator created by Muhammad Talha.">
+    <meta name="description" content="A fast, modern and privacy-friendly scientific calculator created by Muhammad Talha, Software Engineer.">
+    <meta name="author" content="Muhammad Talha">
     <meta name="theme-color" content="#0f172a">
+    <meta property="og:title" content="Calculator — Muhammad Talha">
+    <meta property="og:description" content="A modern, responsive and privacy-friendly scientific calculator.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <link rel="manifest" href="manifest.webmanifest">
     <title>Calculator — Muhammad Talha</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -75,22 +82,18 @@ $profile = [
                 <button type="button" class="key key-action" data-action="sign" aria-label="Toggle positive or negative">±</button>
                 <button type="button" class="key key-action" data-action="percent">%</button>
                 <button type="button" class="key key-operator" data-value="÷" aria-label="Divide">÷</button>
-
                 <button type="button" class="key" data-value="7">7</button>
                 <button type="button" class="key" data-value="8">8</button>
                 <button type="button" class="key" data-value="9">9</button>
                 <button type="button" class="key key-operator" data-value="×" aria-label="Multiply">×</button>
-
                 <button type="button" class="key" data-value="4">4</button>
                 <button type="button" class="key" data-value="5">5</button>
                 <button type="button" class="key" data-value="6">6</button>
                 <button type="button" class="key key-operator" data-value="-">−</button>
-
                 <button type="button" class="key" data-value="1">1</button>
                 <button type="button" class="key" data-value="2">2</button>
                 <button type="button" class="key" data-value="3">3</button>
                 <button type="button" class="key key-operator" data-value="+">+</button>
-
                 <button type="button" class="key key-action" data-action="backspace" aria-label="Backspace">⌫</button>
                 <button type="button" class="key key-zero" data-value="0">0</button>
                 <button type="button" class="key" data-value=".">.</button>
@@ -99,29 +102,30 @@ $profile = [
 
             <aside class="history-panel" data-history-panel aria-label="Calculation history" hidden>
                 <div class="history-header">
-                    <div>
-                        <span class="eyebrow">Your calculations</span>
-                        <h2>History</h2>
-                    </div>
+                    <div><span class="eyebrow">Your calculations</span><h2>History</h2></div>
                     <button type="button" class="text-button" data-clear-history>Clear</button>
                 </div>
-                <div class="history-list" data-history-list>
-                    <p class="empty-state">No calculations yet.</p>
-                </div>
+                <div class="history-list" data-history-list><p class="empty-state">No calculations yet.</p></div>
             </aside>
 
             <footer class="app-footer">
-                <p>Created with care by <strong><?php echo htmlspecialchars($profile['name'], ENT_QUOTES, 'UTF-8'); ?></strong></p>
+                <p>Created with care by <strong><?php echo htmlspecialchars($profile['name'], ENT_QUOTES, 'UTF-8'); ?></strong> · <?php echo htmlspecialchars($profile['role'], ENT_QUOTES, 'UTF-8'); ?></p>
                 <nav aria-label="Creator links">
+                    <a href="<?php echo htmlspecialchars($profile['portfolio'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">Portfolio</a>
                     <a href="<?php echo htmlspecialchars($profile['github'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">GitHub</a>
-                    <a href="<?php echo htmlspecialchars($profile['portfolio'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo $profile['portfolio'] === '#' ? 'aria-disabled="true"' : 'target="_blank" rel="noopener noreferrer"'; ?>>Portfolio</a>
-                    <a href="<?php echo htmlspecialchars($profile['fiverr'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo $profile['fiverr'] === '#' ? 'aria-disabled="true"' : 'target="_blank" rel="noopener noreferrer"'; ?>>Fiverr</a>
-                    <a href="<?php echo htmlspecialchars($profile['upwork'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo $profile['upwork'] === '#' ? 'aria-disabled="true"' : 'target="_blank" rel="noopener noreferrer"'; ?>>Upwork</a>
+                    <a href="<?php echo htmlspecialchars($profile['fiverr'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">Fiverr</a>
+                    <a href="<?php echo htmlspecialchars($profile['upwork'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">Upwork</a>
+                    <a href="<?php echo htmlspecialchars($profile['linkedin'], ENT_QUOTES, 'UTF-8'); ?>" target="_blank" rel="noopener noreferrer">LinkedIn</a>
                 </nav>
                 <small>Keyboard supported · Esc clears · H opens history · S toggles scientific mode</small>
             </footer>
         </section>
     </main>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+        }
+    </script>
     <script src="app.js" defer></script>
 </body>
 </html>
