@@ -1,5 +1,9 @@
 # Production Release Guide
 
+## Current release
+
+**Version:** 7.0.0
+
 ## Pre-release checklist
 
 - [ ] Run the Playwright suite with `npm test`.
