@@ -1,11 +1,11 @@
-const CACHE_NAME = 'calculator-v6';
+const CACHE_NAME = 'calculator-v7';
 const APP_SHELL = [
     './',
     './index.php',
     './style.css',
     './app.js',
     './manifest.webmanifest',
-    './icons/icon.svg',
+    './icons/calculator-logo.svg',
 ];
 
 self.addEventListener('install', (event) => {

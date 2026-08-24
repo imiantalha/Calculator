@@ -23,7 +23,8 @@ $profile = [
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+    <link rel="icon" href="icons/calculator-logo.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icons/calculator-logo.svg">
     <title>Calculator — Muhammad Talha</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -32,9 +33,12 @@ $profile = [
     <main class="page-shell" id="calculator">
         <section class="calculator-card" aria-label="Calculator application">
             <header class="app-header">
-                <div>
-                    <span class="eyebrow">Simple. Fast. Precise.</span>
-                    <h1>Calculator</h1>
+                <div class="brand">
+                    <img class="brand-icon" src="icons/calculator-logo.svg" width="40" height="40" alt="Calculator logo">
+                    <div>
+                        <span class="eyebrow">Simple. Fast. Precise.</span>
+                        <h1>Calculator</h1>
+                    </div>
                 </div>
                 <div class="header-actions">
                     <button type="button" class="mode-button" data-mode-toggle aria-label="Switch to scientific calculator">SCI</button>
