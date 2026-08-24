@@ -2,7 +2,7 @@
 $profile = [
     'name' => 'Muhammad Talha',
     'github' => 'https://github.com/imiantalha',
-    // Add the exact URLs for these profiles when available.
+    // Replace these placeholders with your public profile URLs.
     'portfolio' => '#',
     'fiverr' => '#',
     'upwork' => '#',
@@ -26,14 +26,28 @@ $profile = [
                     <span class="eyebrow">Simple. Fast. Precise.</span>
                     <h1>Calculator</h1>
                 </div>
-                <button type="button" class="icon-button" data-theme-toggle aria-label="Switch to dark theme">☾</button>
+                <div class="header-actions">
+                    <button type="button" class="icon-button" data-history-toggle aria-label="Open calculation history" aria-expanded="false">↺</button>
+                    <button type="button" class="icon-button" data-theme-toggle aria-label="Switch to dark theme">☾</button>
+                </div>
             </header>
 
             <section class="display-panel" aria-label="Calculator result">
                 <div class="expression" data-expression aria-hidden="true">0</div>
                 <output class="result" data-display aria-live="polite">0</output>
-                <div class="status" data-status hidden></div>
+                <div class="display-tools">
+                    <span class="status" data-status hidden></span>
+                    <button type="button" class="copy-button" data-copy-result aria-label="Copy result">Copy</button>
+                </div>
             </section>
+
+            <div class="memory-bar" aria-label="Memory functions">
+                <button type="button" data-memory="clear">MC</button>
+                <button type="button" data-memory="recall">MR</button>
+                <button type="button" data-memory="add">M+</button>
+                <button type="button" data-memory="subtract">M−</button>
+                <button type="button" data-memory="store">MS</button>
+            </div>
 
             <div class="keypad" data-keypad>
                 <button type="button" class="key key-action" data-action="clear">AC</button>
@@ -62,6 +76,19 @@ $profile = [
                 <button type="button" class="key key-equals" data-action="equals" aria-label="Equals">=</button>
             </div>
 
+            <aside class="history-panel" data-history-panel aria-label="Calculation history" hidden>
+                <div class="history-header">
+                    <div>
+                        <span class="eyebrow">Your calculations</span>
+                        <h2>History</h2>
+                    </div>
+                    <button type="button" class="text-button" data-clear-history>Clear</button>
+                </div>
+                <div class="history-list" data-history-list>
+                    <p class="empty-state">No calculations yet.</p>
+                </div>
+            </aside>
+
             <footer class="app-footer">
                 <p>Created with care by <strong><?php echo htmlspecialchars($profile['name'], ENT_QUOTES, 'UTF-8'); ?></strong></p>
                 <nav aria-label="Creator links">
@@ -70,7 +97,7 @@ $profile = [
                     <a href="<?php echo htmlspecialchars($profile['fiverr'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo $profile['fiverr'] === '#' ? 'aria-disabled="true"' : 'target="_blank" rel="noopener noreferrer"'; ?>>Fiverr</a>
                     <a href="<?php echo htmlspecialchars($profile['upwork'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo $profile['upwork'] === '#' ? 'aria-disabled="true"' : 'target="_blank" rel="noopener noreferrer"'; ?>>Upwork</a>
                 </nav>
-                <small>Keyboard supported · Press Esc to clear</small>
+                <small>Keyboard supported · Esc clears · H opens history</small>
             </footer>
         </section>
     </main>
