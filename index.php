@@ -16,17 +16,20 @@ $profile = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A fast, modern and privacy-friendly scientific calculator created by Muhammad Talha, Software Engineer.">
     <meta name="author" content="Muhammad Talha">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="theme-color" content="#0f172a">
     <meta property="og:title" content="Calculator — Muhammad Talha">
     <meta property="og:description" content="A modern, responsive and privacy-friendly scientific calculator.">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
     <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
     <title>Calculator — Muhammad Talha</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <main class="page-shell">
+    <a class="skip-link" href="#calculator">Skip to calculator</a>
+    <main class="page-shell" id="calculator">
         <section class="calculator-card" aria-label="Calculator application">
             <header class="app-header">
                 <div>
@@ -44,7 +47,7 @@ $profile = [
                 <div class="expression" data-expression aria-hidden="true">0</div>
                 <output class="result" data-display aria-live="polite">0</output>
                 <div class="display-tools">
-                    <span class="status" data-status hidden></span>
+                    <span class="status" data-status role="status" aria-live="polite" hidden></span>
                     <button type="button" class="copy-button" data-copy-result aria-label="Copy result">Copy</button>
                 </div>
             </section>

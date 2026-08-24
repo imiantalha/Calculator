@@ -13,10 +13,12 @@ A modern, responsive and privacy-friendly scientific calculator built with PHP a
 - Light/dark theme
 - Responsive mobile and desktop UI
 - Keyboard shortcuts
-- Accessible labels, focus states and live results
+- Keyboard-accessible skip link, focus states and live results
+- Reduced-motion support
 - No `eval()` or arbitrary code execution
 - Playwright regression tests and GitHub Actions CI
 - Web App Manifest and service worker for installable/offline-capable use
+- Branded application icon
 - SEO/social metadata and crawler policy
 - Creator links displayed directly in the product
 
@@ -61,7 +63,23 @@ npm run test:ui
 npm run test:report
 ```
 
-The browser suite covers arithmetic, parser precedence, scientific functions, errors, keyboard controls, history, memory, clipboard, theme persistence and other product flows.
+The browser suite covers arithmetic, parser precedence, scientific functions, errors, keyboard controls, history, memory, clipboard, theme persistence and other product flows. Phase 6 adds dedicated scientific expression regression scenarios.
+
+## ♿ Quality & Accessibility
+
+Phase 6 introduces a production-quality baseline documented in [`docs/QUALITY.md`](docs/QUALITY.md):
+
+- Keyboard skip link
+- Live result and status regions
+- Visible keyboard focus indicators
+- Reduced-motion support
+- Safer external-link behavior
+- Branded PWA icon
+- Versioned service-worker cache with successful-response checks
+- Scientific parser regression coverage
+- Production release checklist
+
+A full automated axe/WCAG audit is intentionally still listed as future work; repository-level accessibility improvements should not be confused with a formal compliance certification.
 
 ## 🔬 Scientific Mode
 
@@ -104,18 +122,18 @@ The expression engine uses explicit recursive-descent parsing. User expressions 
 - No calculator data is sent to a backend
 - Dynamic history content is rendered safely with DOM APIs
 - PHP profile values are HTML-escaped
+- External profile links use `noopener noreferrer`
 
 ## 📱 PWA / Offline Architecture
 
 The app includes:
 
-- `manifest.webmanifest` — app identity, display mode and theme metadata
-- `sw.js` — cache-first fallback strategy for the application shell and visited GET resources
+- `manifest.webmanifest` — app identity, display mode, theme and icon metadata
+- `icons/icon.svg` — branded application icon
+- `sw.js` — versioned service worker with application-shell caching and offline fallback
 - Service-worker registration from `index.php`
 
-The service worker uses a versioned cache and removes old cache versions during activation. Network requests are preferred when available so updated resources can be cached for future offline use.
-
-For production hosting, HTTPS is required for service-worker installation.
+The service worker removes old cache versions during activation and only caches successful network responses. For production hosting, HTTPS is required for service-worker installation.
 
 ## 🔎 SEO & Social Metadata
 
@@ -124,6 +142,7 @@ The page includes:
 - Descriptive page title
 - Meta description
 - Author metadata
+- Referrer policy metadata
 - Theme color
 - Open Graph title/description/type
 - Twitter card metadata
@@ -153,10 +172,15 @@ Calculator/
 ├── style.css
 ├── manifest.webmanifest
 ├── sw.js
+├── icons/
+│   └── icon.svg
 ├── robots.txt
 ├── sitemap.xml
+├── docs/
+│   └── QUALITY.md
 ├── tests/
-│   └── calculator.test.js
+│   ├── calculator.test.js
+│   └── parser.test.js
 ├── playwright.config.js
 ├── package.json
 ├── .github/workflows/tests.yml
@@ -167,12 +191,13 @@ Calculator/
 
 Future candidates:
 
-- Expanded accessibility/screen-reader testing
+- Automated axe/WCAG accessibility testing
 - Broader browser/device matrix
 - Unit-level parser tests alongside E2E tests
 - Configurable precision/display formatting
-- Generated app icons and screenshots for richer PWA installation metadata
-- Optional install prompt UX
+- 192px/512px raster PWA icon variants where platform requirements need them
+- PWA install prompt UX
+- Final Lighthouse audit on the deployed production host
 
 ## 📄 License
 
