@@ -27,6 +27,7 @@ $profile = [
                     <h1>Calculator</h1>
                 </div>
                 <div class="header-actions">
+                    <button type="button" class="mode-button" data-mode-toggle aria-label="Switch to scientific calculator">SCI</button>
                     <button type="button" class="icon-button" data-history-toggle aria-label="Open calculation history" aria-expanded="false">↺</button>
                     <button type="button" class="icon-button" data-theme-toggle aria-label="Switch to dark theme">☾</button>
                 </div>
@@ -41,12 +42,32 @@ $profile = [
                 </div>
             </section>
 
+            <div class="mode-toolbar" data-scientific-tools hidden>
+                <button type="button" class="angle-button" data-angle-toggle>DEG</button>
+                <span>Scientific mode</span>
+            </div>
+
             <div class="memory-bar" aria-label="Memory functions">
                 <button type="button" data-memory="clear">MC</button>
                 <button type="button" data-memory="recall">MR</button>
                 <button type="button" data-memory="add">M+</button>
                 <button type="button" data-memory="subtract">M−</button>
                 <button type="button" data-memory="store">MS</button>
+            </div>
+
+            <div class="scientific-keypad" data-scientific-keypad hidden>
+                <button type="button" class="key key-scientific" data-value="sin(">sin</button>
+                <button type="button" class="key key-scientific" data-value="cos(">cos</button>
+                <button type="button" class="key key-scientific" data-value="tan(">tan</button>
+                <button type="button" class="key key-scientific" data-value="sqrt(">√</button>
+                <button type="button" class="key key-scientific" data-value="ln(">ln</button>
+                <button type="button" class="key key-scientific" data-value="log(">log</button>
+                <button type="button" class="key key-scientific" data-value="^">xʸ</button>
+                <button type="button" class="key key-scientific" data-action="factorial">x!</button>
+                <button type="button" class="key key-scientific" data-value="(">(</button>
+                <button type="button" class="key key-scientific" data-value=")">)</button>
+                <button type="button" class="key key-scientific" data-value="π">π</button>
+                <button type="button" class="key key-scientific" data-value="e">e</button>
             </div>
 
             <div class="keypad" data-keypad>
@@ -97,11 +118,10 @@ $profile = [
                     <a href="<?php echo htmlspecialchars($profile['fiverr'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo $profile['fiverr'] === '#' ? 'aria-disabled="true"' : 'target="_blank" rel="noopener noreferrer"'; ?>>Fiverr</a>
                     <a href="<?php echo htmlspecialchars($profile['upwork'], ENT_QUOTES, 'UTF-8'); ?>" <?php echo $profile['upwork'] === '#' ? 'aria-disabled="true"' : 'target="_blank" rel="noopener noreferrer"'; ?>>Upwork</a>
                 </nav>
-                <small>Keyboard supported · Esc clears · H opens history</small>
+                <small>Keyboard supported · Esc clears · H opens history · S toggles scientific mode</small>
             </footer>
         </section>
     </main>
-
     <script src="app.js" defer></script>
 </body>
 </html>
