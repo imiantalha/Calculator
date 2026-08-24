@@ -11,27 +11,33 @@ test.describe('Calculator', () => {
         }
     }
 
-    test('adds numbers', async ({ page }) => {
-        await clickKeys(page, ['2', '+', '3']);
+    async function calculate(page, keys) {
+        await clickKeys(page, keys);
         await page.locator('[data-action="equals"]').click();
+    }
+
+    test('adds numbers', async ({ page }) => {
+        await calculate(page, ['2', '+', '3']);
         await expect(page.locator('[data-display]')).toHaveText('5');
     });
 
     test('respects operator precedence', async ({ page }) => {
-        await clickKeys(page, ['2', '+', '3', '×', '4']);
-        await page.locator('[data-action="equals"]').click();
+        await calculate(page, ['2', '+', '3', '×', '4']);
         await expect(page.locator('[data-display]')).toHaveText('14');
     });
 
     test('handles division', async ({ page }) => {
-        await clickKeys(page, ['2', '0', '÷', '4']);
-        await page.locator('[data-action="equals"]').click();
+        await calculate(page, ['2', '0', '÷', '4']);
         await expect(page.locator('[data-display]')).toHaveText('5');
     });
 
+    test('handles mixed multiplication and division left-to-right', async ({ page }) => {
+        await calculate(page, ['2', '0', '÷', '5', '×', '2']);
+        await expect(page.locator('[data-display]')).toHaveText('8');
+    });
+
     test('prevents division by zero', async ({ page }) => {
-        await clickKeys(page, ['1', '0', '÷', '0']);
-        await page.locator('[data-action="equals"]').click();
+        await calculate(page, ['1', '0', '÷', '0']);
         await expect(page.locator('[data-status]')).toHaveText('Cannot divide by zero.');
     });
 
@@ -41,6 +47,11 @@ test.describe('Calculator', () => {
         await expect(page.locator('[data-display]')).toHaveText('1.2');
     });
 
+    test('normalizes common floating-point artifacts', async ({ page }) => {
+        await calculate(page, ['0', '.', '1', '+', '0', '.', '2']);
+        await expect(page.locator('[data-display]')).toHaveText('0.3');
+    });
+
     test('supports negative numbers', async ({ page }) => {
         await page.locator('[data-action="sign"]').click();
         await page.locator('[data-value="5"]').click();
@@ -48,6 +59,29 @@ test.describe('Calculator', () => {
         await page.locator('[data-value="8"]').click();
         await page.locator('[data-action="equals"]').click();
         await expect(page.locator('[data-display]')).toHaveText('3');
+    });
+
+    test('supports a negative number after an operator', async ({ page }) => {
+        await calculate(page, ['5', '×', '-', '3']);
+        await expect(page.locator('[data-display]')).toHaveText('-15');
+    });
+
+    test('supports percentage conversion', async ({ page }) => {
+        await clickKeys(page, ['5', '0']);
+        await page.locator('[data-action="percent"]').click();
+        await expect(page.locator('[data-display]')).toHaveText('0.5');
+    });
+
+    test('replaces a pending operator instead of stacking operators', async ({ page }) => {
+        await clickKeys(page, ['5', '+', '×', '2']);
+        await page.locator('[data-action="equals"]').click();
+        await expect(page.locator('[data-display]')).toHaveText('10');
+    });
+
+    test('shows an error for an incomplete expression', async ({ page }) => {
+        await clickKeys(page, ['5', '+']);
+        await page.locator('[data-action="equals"]').click();
+        await expect(page.locator('[data-status]')).toHaveText('Complete the expression first.');
     });
 
     test('supports backspace', async ({ page }) => {
