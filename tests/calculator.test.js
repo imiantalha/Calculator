@@ -3,6 +3,8 @@ import { test, expect } from '@playwright/test';
 test.describe('Calculator', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
+        await page.evaluate(() => localStorage.clear());
+        await page.reload();
     });
 
     async function clickKeys(page, keys) {
@@ -108,5 +110,61 @@ test.describe('Calculator', () => {
         await expect(page.locator('html')).toHaveClass(/dark/);
         await page.reload();
         await expect(page.locator('html')).toHaveClass(/dark/);
+    });
+
+    test('saves calculations to history', async ({ page }) => {
+        await calculate(page, ['1', '2', '+', '8']);
+        await page.locator('[data-history-toggle]').click();
+        await expect(page.locator('[data-history-list]')).toContainText('12 + 8');
+        await expect(page.locator('[data-history-list]')).toContainText('20');
+    });
+
+    test('restores a calculation from history', async ({ page }) => {
+        await calculate(page, ['7', '×', '6']);
+        await page.locator('[data-action="clear"]').click();
+        await page.locator('[data-history-toggle]').click();
+        await page.locator('[data-history-index="0"]').click();
+        await expect(page.locator('[data-display]')).toHaveText('7×6');
+    });
+
+    test('clears calculation history', async ({ page }) => {
+        await calculate(page, ['4', '+', '4']);
+        await page.locator('[data-history-toggle]').click();
+        await page.locator('[data-clear-history]').click();
+        await expect(page.locator('[data-history-list]')).toContainText('No calculations yet.');
+    });
+
+    test('stores and recalls memory', async ({ page }) => {
+        await clickKeys(page, ['4', '2']);
+        await page.locator('[data-memory="store"]').click();
+        await page.locator('[data-action="clear"]').click();
+        await page.locator('[data-memory="recall"]').click();
+        await expect(page.locator('[data-display]')).toHaveText('42');
+    });
+
+    test('adds and subtracts from memory', async ({ page }) => {
+        await clickKeys(page, ['1', '0']);
+        await page.locator('[data-memory="store"]').click();
+        await page.locator('[data-action="clear"]').click();
+        await clickKeys(page, ['5']);
+        await page.locator('[data-memory="add"]').click();
+        await page.locator('[data-action="clear"]').click();
+        await page.locator('[data-memory="recall"]').click();
+        await expect(page.locator('[data-display]')).toHaveText('15');
+        await page.locator('[data-memory="subtract"]').click();
+        await page.locator('[data-memory="recall"]').click();
+        await expect(page.locator('[data-display]')).toHaveText('0');
+    });
+
+    test('copy button reports success when clipboard is available', async ({ page }) => {
+        await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+        await clickKeys(page, ['4', '2']);
+        await page.locator('[data-copy-result]').click();
+        await expect(page.locator('[data-status]')).toHaveText('Result copied');
+    });
+
+    test('supports H to open history', async ({ page }) => {
+        await page.keyboard.press('h');
+        await expect(page.locator('[data-history-panel]')).toBeVisible();
     });
 });
