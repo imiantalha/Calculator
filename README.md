@@ -1,11 +1,11 @@
 # Calculator
 
-A modern, responsive calculator built as a lightweight PHP + JavaScript web application. The project started as a simple PHP calculator and has been redesigned with a client-side calculation engine, keyboard support, validation, responsive UI, theme switching, and accessible interaction patterns.
+A modern, responsive calculator built as a lightweight PHP + JavaScript web application. The project started as a simple PHP calculator and has been redesigned with a client-side calculation engine, keyboard support, validation, responsive UI, theme switching, accessibility, automated browser tests, and continuous integration.
 
 ## ✨ Features
 
 - Basic arithmetic: addition, subtraction, multiplication and division
-- Operator precedence (`2 + 3 × 4 = 14`)
+- Correct operator precedence (`2 + 3 × 4 = 14`)
 - Decimal input with duplicate-decimal protection
 - Positive/negative toggle
 - Percentage conversion
@@ -17,6 +17,8 @@ A modern, responsive calculator built as a lightweight PHP + JavaScript web appl
 - Light/dark theme with persisted preference
 - Accessible labels, focus states and live result updates
 - No `eval()` or unsafe expression execution
+- Automated Playwright end-to-end tests
+- GitHub Actions CI on pushes and pull requests to `main`
 - Creator attribution and professional profile links
 
 ## 🛠️ Tech Stack
@@ -25,9 +27,12 @@ A modern, responsive calculator built as a lightweight PHP + JavaScript web appl
 - HTML5
 - CSS3
 - Vanilla JavaScript (ES6+)
+- Node.js for development/test tooling
+- Playwright for end-to-end testing
+- GitHub Actions for CI
 - Browser `localStorage` for theme preference
 
-No framework or build step is required.
+The application itself has no runtime framework dependency or frontend build step.
 
 ## 🚀 Run Locally
 
@@ -41,10 +46,62 @@ cd Calculator
 2. Start PHP's built-in server:
 
 ```bash
-php -S localhost:8000
+php -S 127.0.0.1:8000
 ```
 
-3. Open `http://localhost:8000` in your browser.
+3. Open `http://127.0.0.1:8000` in your browser.
+
+## 🧪 Automated Testing
+
+Phase 2 adds browser-level regression coverage with Playwright.
+
+Install Node dependencies:
+
+```bash
+npm install
+```
+
+Install the Chromium browser used by the tests:
+
+```bash
+npx playwright install chromium
+```
+
+Run the test suite:
+
+```bash
+npm test
+```
+
+Run tests with Playwright's interactive UI:
+
+```bash
+npm run test:ui
+```
+
+Show the last HTML test report:
+
+```bash
+npm run test:report
+```
+
+The Playwright configuration starts PHP's built-in server automatically. The test suite covers arithmetic, operator precedence, division, division by zero, decimals, floating-point normalization, negative numbers, percentage, operator replacement, incomplete expressions, backspace, clear, keyboard controls, and theme persistence.
+
+## 🔄 Continuous Integration
+
+GitHub Actions runs the Playwright suite for pushes to `main` and pull requests targeting `main`.
+
+The workflow:
+
+1. Checks out the repository
+2. Installs PHP 8.3
+3. Installs Node.js 22
+4. Installs npm dependencies
+5. Installs Chromium with required system dependencies
+6. Starts the PHP application through Playwright
+7. Runs the browser regression suite
+
+This prevents common UI and calculation regressions from silently reaching `main`.
 
 ## ⌨️ Keyboard Shortcuts
 
@@ -73,7 +130,7 @@ For example:
 14
 ```
 
-Results are normalized to avoid common floating-point display artifacts.
+Results are normalized to avoid common floating-point display artifacts while retaining useful decimal precision.
 
 ## 🔐 Security & Reliability
 
@@ -81,14 +138,21 @@ The application intentionally avoids executing user input as code. The calculato
 
 The PHP front end also escapes creator/profile values before rendering them into HTML.
 
+Regression tests specifically cover failure-prone behavior so changes to the calculator engine can be verified automatically.
+
 ## 📁 Project Structure
 
 ```text
 Calculator/
-├── index.php       # Application shell and calculator markup
-├── app.js          # Calculator state, parser and interactions
-├── style.css       # Responsive product UI and themes
-└── README.md       # Project documentation
+├── index.php                    # Application shell and calculator markup
+├── app.js                       # Calculator state, parser and interactions
+├── style.css                    # Responsive product UI and themes
+├── tests/
+│   └── calculator.test.js       # Playwright end-to-end regression tests
+├── playwright.config.js         # Test runner and PHP web-server configuration
+├── package.json                 # Test tooling and npm scripts
+├── .github/workflows/tests.yml  # Continuous integration workflow
+└── README.md                    # Project documentation
 ```
 
 ## 👨‍💻 Created By
@@ -110,8 +174,8 @@ Potential future improvements:
 - Memory functions (`MC`, `MR`, `M+`, `M-`)
 - Copy result button
 - Scientific operations
-- Automated unit tests
-- CI checks with GitHub Actions
+- Additional accessibility audits
+- Broader browser/device matrix
 
 ## 📄 License
 
