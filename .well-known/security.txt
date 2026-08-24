@@ -1,0 +1,3 @@
+Contact: https://github.com/imiantalha/Calculator/security/policy
+Preferred-Languages: en
+Canonical: https://github.com/imiantalha/Calculator/security/policy
