@@ -32,13 +32,9 @@
     const EPSILON = 1e-12;
 
     const isOperator = (value) => operators.includes(value);
-    const isFunction = (value) => functions.includes(value);
     const isDigit = (value) => /^\d$/.test(value);
 
-    function setStatus(message = '') {
-        status.textContent = message;
-        status.hidden = !message;
-    }
+    function setStatus(message = '') { status.textContent = message; status.hidden = !message; }
 
     function updateDisplay() {
         const value = expression || '0';
@@ -52,15 +48,11 @@
     function getHistory() {
         try {
             const parsed = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-            if (!Array.isArray(parsed)) return [];
-            return parsed.filter((item) => item && typeof item.calculation === 'string' && typeof item.result === 'string').slice(0, MAX_HISTORY);
+            return Array.isArray(parsed) ? parsed.filter((item) => item && typeof item.calculation === 'string' && typeof item.result === 'string').slice(0, MAX_HISTORY) : [];
         } catch (_) { return []; }
     }
 
-    function saveHistory(items) {
-        localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, MAX_HISTORY)));
-        renderHistory();
-    }
+    function saveHistory(items) { localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, MAX_HISTORY))); renderHistory(); }
 
     function addHistory(calculation, result) {
         const history = getHistory();
@@ -159,8 +151,7 @@
 
     function appendValue(value) {
         resetAfterEvaluation();
-        if (isFunction(value)) expression += `${value}(`;
-        else expression += value;
+        expression += value;
         setStatus();
         updateDisplay();
     }
@@ -189,10 +180,9 @@
 
     function backspace() {
         if (justEvaluated) return clearCalculator();
-        for (const fn of functions) {
-            if (expression.endsWith(`${fn}(`)) expression = expression.slice(0, -fn.length - 1);
-        }
-        if (!functions.some((fn) => expression.endsWith(`${fn}(`))) expression = expression.slice(0, -1);
+        const functionPrefix = functions.find((fn) => expression.endsWith(`${fn}(`));
+        if (functionPrefix) expression = expression.slice(0, -functionPrefix.length - 1);
+        else expression = expression.slice(0, -1);
         setStatus();
         updateDisplay();
     }
@@ -256,24 +246,14 @@
         let position = 0;
         const peek = () => tokens[position];
         const take = () => tokens[position++];
-
         const parseExpression = () => {
             let value = parseTerm();
-            while (peek()?.type === 'operator' && ['+', '-'].includes(peek().value)) {
-                const op = take().value;
-                const right = parseTerm();
-                value = op === '+' ? value + right : value - right;
-            }
+            while (peek()?.type === 'operator' && ['+', '-'].includes(peek().value)) { const op = take().value; const right = parseTerm(); value = op === '+' ? value + right : value - right; }
             return value;
         };
         const parseTerm = () => {
             let value = parsePower();
-            while (peek()?.type === 'operator' && ['×', '÷'].includes(peek().value)) {
-                const op = take().value;
-                const right = parsePower();
-                if (op === '÷' && right === 0) throw new Error('Cannot divide by zero.');
-                value = op === '×' ? value * right : value / right;
-            }
+            while (peek()?.type === 'operator' && ['×', '÷'].includes(peek().value)) { const op = take().value; const right = parsePower(); if (op === '÷' && right === 0) throw new Error('Cannot divide by zero.'); value = op === '×' ? value * right : value / right; }
             return value;
         };
         const parsePower = () => {
@@ -311,7 +291,6 @@
             }
             throw new Error('Invalid expression.');
         };
-
         const result = parseExpression();
         if (position !== tokens.length) throw new Error('Invalid expression.');
         if (!Number.isFinite(result)) throw new Error('Result is outside the supported range.');
