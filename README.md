@@ -40,8 +40,8 @@ There is no runtime frontend framework or build step.
 ## 🚀 Run Locally
 
 ```bash
-git clone https://github.com/imiantalha/Calculator.git
-cd Calculator
+git clone https://github.com/imiantalha/scientific-calculator.git
+cd scientific-calculator
 php -S 127.0.0.1:8000
 ```
 
@@ -154,7 +154,7 @@ The repository intentionally does not claim a production deployment URL, Lightho
 ## 📁 Project Structure
 
 ```text
-Calculator/
+scientific-calculator/
 ├── index.php
 ├── app.js
 ├── style.css
