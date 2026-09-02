@@ -4,6 +4,10 @@
 
 **Version:** 7.0.0
 
+## Live deployment
+
+**Production URL:** https://scientific-calculator.up.railway.app/
+
 ## Pre-release checklist
 
 - [ ] Run the Playwright suite with `npm test`.
