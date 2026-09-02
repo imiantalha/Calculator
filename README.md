@@ -2,6 +2,10 @@
 
 A modern, responsive and privacy-friendly scientific calculator built with PHP and vanilla JavaScript. The project is designed as a real product rather than a demo: it includes a safe expression parser, scientific mode, local history and memory, accessibility improvements, automated browser tests, CI, PWA support and a professional branded icon.
 
+## 🌐 Live Demo
+
+**Try the calculator online:** https://scientific-calculator.up.railway.app/
+
 ## ✨ Features
 
 - Basic arithmetic with correct operator precedence
@@ -146,6 +150,8 @@ The sitemap remains portable by using a relative root. Replace it with the deplo
 These links are configured centrally in `index.php` and rendered on the calculator front page.
 
 ## 📦 Production Release
+
+**Live deployment:** https://scientific-calculator.up.railway.app/
 
 See [`docs/RELEASE.md`](docs/RELEASE.md) for the deployment checklist, hosting requirements, production smoke tests, Lighthouse/accessibility verification and release process.
 
